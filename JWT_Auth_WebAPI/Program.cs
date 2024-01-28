@@ -1,5 +1,7 @@
 using JWT_Auth_WebAPI.Core.DbContext;
 using JWT_Auth_WebAPI.Core.Entities;
+using JWT_Auth_WebAPI.Core.Interfaces;
+using JWT_Auth_WebAPI.Core.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseSqlServer(connectionString);
 });
+
+//DI
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 
 //Add Identity
