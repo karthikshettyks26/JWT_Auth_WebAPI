@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace JWT_Auth_WebAPI.Data.DbContext
+namespace JWT_Auth_WebAPI.Core.DbContext
 {
     public class ApplicationDbContext : IdentityDbContext
     {

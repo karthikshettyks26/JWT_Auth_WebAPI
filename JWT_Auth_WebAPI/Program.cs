@@ -1,4 +1,4 @@
-using JWT_Auth_WebAPI.Data.DbContext;
+using JWT_Auth_WebAPI.Core.DbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
