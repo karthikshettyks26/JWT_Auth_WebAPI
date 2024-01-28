@@ -1,4 +1,5 @@
 ﻿using JWT_Auth_WebAPI.Core.Dtos;
+using JWT_Auth_WebAPI.Core.Entities;
 using JWT_Auth_WebAPI.Core.OtherObjects;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,11 @@ namespace JWT_Auth_WebAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AuthController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -56,11 +57,13 @@ namespace JWT_Auth_WebAPI.Controllers
             if (isUserExists != null)
                 return BadRequest("UserName already exists!");
 
-            IdentityUser newUser = new IdentityUser()
+            ApplicationUser newUser = new ApplicationUser()
             {
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
                 Email = registerDto.Email,
                 UserName = registerDto.UserName,
-                SecurityStamp = Guid.NewGuid().ToString(), 
+                SecurityStamp = Guid.NewGuid().ToString(),
             };
 
             var createdUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
@@ -102,6 +105,9 @@ namespace JWT_Auth_WebAPI.Controllers
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim("JWTID", Guid.NewGuid().ToString()),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
+
             };
 
             foreach (var userRole in userRoles)
@@ -131,6 +137,37 @@ namespace JWT_Auth_WebAPI.Controllers
 
             return token;
         }
-             
+
+
+        [HttpPost]
+        [Route("make-admin")]
+        public async Task<IActionResult> MakeAdmin([FromBody] UpdatePermissionDto updatePermissionDto)
+        {
+            var user = await _userManager.FindByNameAsync(updatePermissionDto.UserName);
+
+            if (user is null)
+                return BadRequest("Invalid UserName");
+
+            await _userManager.AddToRoleAsync(user, StaticUserRoles.ADMIN);
+
+            return Ok("User is now Admin");
+
+        }
+
+        [HttpPost]
+        [Route("make-owner")]
+        public async Task<IActionResult> MakeOwner([FromBody] UpdatePermissionDto updatePermissionDto)
+        {
+            var user = await _userManager.FindByNameAsync(updatePermissionDto.UserName);
+
+            if (user is null)
+                return BadRequest("Invalid UserName");
+
+            await _userManager.AddToRoleAsync(user, StaticUserRoles.OWNER);
+
+            return Ok("User is now Owner");
+
+        }
+
     }
 }
